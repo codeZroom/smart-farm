@@ -11,6 +11,10 @@
   --accent: #27644c;
   --soft: #e9f1e8;
   --danger: #a33f35;
+  --focus: #245d45;
+  --surface-hover: #f0f6ef;
+  --pressed: #dcebdd;
+  --overlay: rgb(20 42 32 / 0.42);
 }
 * {
   box-sizing: border-box;
@@ -999,4 +1003,28 @@ dt {
 }
 .page-footer {
   padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+/* Navigation, information hierarchy and button feedback. */
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 100; transform: translateY(-160%); background: var(--ink); color: var(--surface); padding: 10px 16px; border-radius: 6px; }
+.skip-link:focus-visible { transform: translateY(0); }
+.page-context { color: var(--accent); font-size: 12px; font-weight: 650; margin-bottom: 8px; }
+.page-header h1 { text-wrap: balance; }
+.metric { border-radius: 12px; border-top: 3px solid var(--soft); }
+.metric:first-child { border-top-color: #c78352; }
+.metric:nth-child(2) { border-top-color: #5596a2; }
+.metric strong { display: block; }
+.button, .header-meta button, .mobile-header button, .sidebar nav a, .sidebar-bottom button { touch-action: manipulation; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 100ms ease; }
+.button:not(:disabled):active, .header-meta button:not(:disabled):active, .mobile-header button:active { transform: scale(.98); }
+.outline:not(:disabled):hover, .header-meta button:not(:disabled):hover, .mobile-header button:hover { background: var(--surface-hover); border-color: var(--accent); }
+.destructive:not(:disabled):hover { background: #f7e0d9; border-color: var(--danger); }
+.button:disabled { cursor: not-allowed; }
+.sidebar nav a:focus-visible, .button:focus-visible, .mobile-header button:focus-visible, .header-meta button:focus-visible { outline-color: var(--focus); }
+.menu-backdrop { display: none; }
+@media (max-width: 767px) {
+  .menu-backdrop { display: block; position: fixed; inset: 65px 0 0; z-index: 25; background: var(--overlay); border: 0; width: 100%; }
+  .sidebar.open { overflow-y: auto; overscroll-behavior: contain; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button, .header-meta button, .mobile-header button, .sidebar nav a, .sidebar-bottom button { transition: none; }
+  .button:not(:disabled):active, .header-meta button:not(:disabled):active, .mobile-header button:active { transform: none; }
 }

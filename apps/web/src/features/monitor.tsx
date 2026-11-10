@@ -183,7 +183,7 @@ export function Monitor({ view, id }: { view: string; id?: string }) {
     <>
       <header className="page-header">
         <div>
-          <p className="eyebrow">MY FARM / {view.toUpperCase()}</p>
+          <p className="page-context">내 농장</p>
           <h1>{titles[view]}</h1>
           <p className="muted">
             {view === "dashboard"
@@ -196,8 +196,8 @@ export function Monitor({ view, id }: { view: string; id?: string }) {
             <span className={`dot ${online ? "" : "gray"}`} />
             {online ? "네트워크 연결됨" : "인터넷 오프라인"}
           </span>
-          <button aria-label="데이터 새로고침" onClick={() => query.refetch()}>
-            <RefreshCw size={18} />
+          <button aria-label="데이터 새로고침" aria-busy={query.isFetching} disabled={query.isFetching} onClick={() => query.refetch()}>
+            <RefreshCw size={18} aria-hidden="true" className={query.isFetching ? "spin" : undefined} />
           </button>
         </div>
       </header>
