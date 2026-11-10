@@ -1,0 +1,30 @@
+{
+  "name": "smartfarm",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/web",
+    "build": "npm run build -w apps/web",
+    "lint": "npm run lint -w apps/web",
+    "typecheck": "npm run typecheck -w apps/web && tsc -p tsconfig.tools.json",
+    "test": "tsx --test tests/*.test.ts",
+    "simulate": "tsx scripts/simulator.ts",
+    "local:prepare": "node scripts/local-prepare.mjs",
+    "test:e2e": "node scripts/local-prepare.mjs && playwright test",
+    "local:start": "npx --yes supabase@2.58.5 start",
+    "format": "prettier --write apps/web/src scripts tests docs README.md package.json apps/web/package.json apps/web/tsconfig.json playwright.config.ts",
+    "start": "npm run start -w apps/web"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14",
+    "@playwright/test": "1.56.1",
+    "prettier": "3.6.2",
+    "tsx": "4.20.6"
+  },
+  "overrides": {
+    "postcss": "8.5.32"
+  },
+  "packageManager": "npm@10.9.4"
+}
