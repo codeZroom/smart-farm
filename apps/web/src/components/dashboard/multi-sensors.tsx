@@ -82,7 +82,7 @@ export function MultiSensors({
             {sensors.map(([key, label, unit]) => {
               const item = q.data.latest.find((x) => x.sensor_type === key);
               const state = !item
-                ? "미연결"
+                ? "수신 전"
                 : item.status === "ok"
                   ? key === "uv_raw" || key === "uv_voltage"
                     ? "입력 확인 필요"
