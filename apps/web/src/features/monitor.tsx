@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
+const MultiSensors = dynamic(() => import("@/components/dashboard/multi-sensors").then(m => m.MultiSensors), {ssr:false});
 const SensorChart = dynamic(
   () => import("@/components/charts/sensor-chart").then((m) => m.SensorChart),
   {
@@ -196,8 +197,17 @@ export function Monitor({ view, id }: { view: string; id?: string }) {
             <span className={`dot ${online ? "" : "gray"}`} />
             {online ? "네트워크 연결됨" : "인터넷 오프라인"}
           </span>
-          <button aria-label="데이터 새로고침" aria-busy={query.isFetching} disabled={query.isFetching} onClick={() => query.refetch()}>
-            <RefreshCw size={18} aria-hidden="true" className={query.isFetching ? "spin" : undefined} />
+          <button
+            aria-label="데이터 새로고침"
+            aria-busy={query.isFetching}
+            disabled={query.isFetching}
+            onClick={() => query.refetch()}
+          >
+            <RefreshCw
+              size={18}
+              aria-hidden="true"
+              className={query.isFetching ? "spin" : undefined}
+            />
           </button>
         </div>
       </header>
@@ -700,6 +710,13 @@ export function Monitor({ view, id }: { view: string; id?: string }) {
           submit={(values) =>
             save.mutate({ action: "thresholds", id: device.id, data: values })
           }
+        />
+      )}
+      {device && ["dashboard", "detail", "statistics"].includes(view) && (
+        <MultiSensors
+          deviceId={device.id}
+          period={period}
+          isOnline={isOnline(device)}
         />
       )}
       {(view === "dashboard" || view === "alerts") && (

@@ -1,5 +1,28 @@
 # 온실 · Smart Farm Monitoring
 
+## 다중 센서 개발 브랜치
+
+기존 SHT31 요청을 유지하면서 `firmware/esp32-smart-farm`은 DS18B20 수온, MH-Z19C CO₂, GUVA-S12SD ADC 원시값과 전압을 전송합니다. H392와 토양 RS485는 미연결 상태로 표시하며 제품별 프로토콜 확인 전까지 값을 생성하지 않습니다. GPIO, 전원, 센서 오류와 공식 루트 CA 설정은 [다중 센서 설정](firmware/esp32-smart-farm/README.md)을 확인하세요. 실제 릴레이 제어 기능은 없습니다.
+
+### 적용 순서
+
+기존 운영 DB에는 자동으로 적용되지 않습니다. 먼저 격리된 개발 Supabase에서 백업과 초기/신규 마이그레이션 적용, 기존 장치 및 다중 센서 장치 수집, 사용자 분리 검증을 마치세요. 운영에는 변경과 백업 절차를 검토한 후 신규 `20261126142905_multi_sensor.sql`을 **웹 배포보다 먼저** 적용합니다. 그렇지 않으면 새 센서 조회·수집 API는 동작하지 않습니다. 이후 Vercel Preview에서 실제 키를 안전하게 설정해 검증하고 승격합니다. 원격 DB나 Vercel 배포는 자동으로 수행하지 않습니다. [DB 설계와 롤백](docs/DATABASE.md) · [배포 가이드](docs/DEPLOYMENT.md)
+
+### Windows 펌웨어
+
+```powershell
+Copy-Item firmware/esp32-smart-farm/config.example.h firmware/esp32-smart-farm/config.local.h
+# config.local.h에 실제 Wi-Fi, UUID, 장치 키와 공식 ROOT_CA를 입력
+./scripts/esp32-setup.ps1
+./scripts/esp32-build.ps1
+arduino-cli board list
+# 실제 포트/보드 확인 후, COM3은 예시
+./scripts/esp32-upload.ps1 -Port COM3 -ConfirmedTarget
+./scripts/esp32-monitor.ps1 -Port COM3
+```
+
+시리얼의 각 측정 상태와 HTTP 201을 확인한 뒤 대시보드의 수신 시간과 센서 카드를 확인하세요. 401은 장치 키/UUID, 422는 값 형식, 429는 전송 주기, 503은 서버·마이그레이션을 확인합니다. TLS 오류 시 인증서와 NTP를 확인하며 검증을 해제하지 마세요. 보드가 없으면 실제 업로드나 센서 정확도는 확인할 수 없습니다.
+
 ESP32 + SHT31의 온습도를 수집하는 Next.js 15 PWA입니다. 모니터링만 수행하며 환기·가습·관수 전기 장치를 제어하지 않습니다.
 
 ## 구성

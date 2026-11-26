@@ -1,4 +1,48 @@
 import { z } from "zod";
+const sensorValue = (min: number, max: number) =>
+  z.number().finite().min(min).max(max).nullable().optional();
+export const multiReadingSchema = z
+  .object({
+    deviceId: z.uuid(),
+    firmwareVersion: z.string().max(64).optional(),
+    readings: z
+      .object({
+        water_temperature: sensorValue(-55, 125),
+        co2: sensorValue(0, 10000),
+        uv_voltage: sensorValue(0, 3300),
+        uv_raw: sensorValue(0, 4095),
+        air_temperature: sensorValue(-40, 125),
+        air_humidity: sensorValue(0, 100),
+        soil_1_moisture: sensorValue(0, 100),
+        soil_1_temperature: sensorValue(-55, 125),
+        soil_1_ec: sensorValue(0, 100000),
+        soil_2_moisture: sensorValue(0, 100),
+        soil_2_temperature: sensorValue(-55, 125),
+        soil_2_ec: sensorValue(0, 100000),
+      })
+      .strict(),
+    sensorStatuses: z
+      .record(z.string(), z.enum(["warming", "error", "disconnected"]))
+      .optional(),
+  })
+  .strict()
+  .superRefine((v, ctx) => {
+    if (!Object.values(v.readings).some((value) => typeof value === "number"))
+      ctx.addIssue({
+        code: "custom",
+        message: "최소 하나의 유효한 측정값이 필요합니다.",
+      });
+    for (const [key, status] of Object.entries(v.sensorStatuses || {}))
+      if (
+        !(key in v.readings) ||
+        v.readings[key as keyof typeof v.readings] !== null ||
+        !status
+      )
+        ctx.addIssue({
+          code: "custom",
+          message: "상태는 null로 명시된 센서에만 지정할 수 있습니다.",
+        });
+  });
 export const readingSchema = z
   .object({
     deviceId: z.uuid(),

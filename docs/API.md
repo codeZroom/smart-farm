@@ -1,5 +1,11 @@
 # API v1
 
+## 다중 센서 형식 (기존 형식과 병행)
+
+`POST /api/v1/devices/readings`에 동일한 Bearer 키로 `{"deviceId":"UUID","firmwareVersion":"2.0.0","readings":{"water_temperature":22.38,"co2":null,"uv_voltage":2937,"uv_raw":3566},"sensorStatuses":{"co2":"warming"}}`를 전송합니다. 최소 하나는 유효한 숫자여야 합니다. 생략된 키는 상태를 갱신하지 않고, `null`은 `disconnected`로 처리하며 `sensorStatuses`에서 `warming`/`error`/`disconnected`를 지정할 수 있습니다. 값이 있는 필드에 오류 상태를 넣을 수 없습니다. 정해지지 않은 키는 거부합니다.
+
+물·토양 온도 -55~125°C, 공기 온도 -40~125°C, 습도/수분 0~100%, CO₂ 0~10000ppm, UV 0~3300mV/ADC 0~4095, EC 0~100000µS/cm를 허용합니다. 이 값은 입력 검증 범위이며 재배 권장 범위가 아닙니다. 기존 temperature/humidity API와 10초 요청 제한은 유지됩니다. 10초 제한은 짧은 간격의 반복을 차단하지만 요청 ID 기반 중복 제거는 아닙니다. 미연결 RS485는 null로 보내며 레지스터를 추측하지 않습니다.
+
 모든 오류는 `{ "error": "안내 문구" }` 형태입니다. 비밀값·SQL 오류·Authorization을 응답이나 로그에 출력하지 않습니다.
 
 ## 장치 측정 수집
