@@ -16,6 +16,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
+const MultiSensors = dynamic(
+  () =>
+    import("@/components/dashboard/multi-sensors").then((m) => m.MultiSensors),
+  { ssr: false },
+);
 const SensorChart = dynamic(
   () => import("@/components/charts/sensor-chart").then((m) => m.SensorChart),
   {
@@ -187,7 +192,7 @@ export function Monitor({ view, id }: { view: string; id?: string }) {
           <h1>{titles[view]}</h1>
           <p className="muted">
             {view === "dashboard"
-              ? "작은 변화도 놓치지 않는, 우리 농장의 현재 상태입니다."
+              ? "재배 환경과 장치의 현재 상태를 확인하세요."
               : "농장의 환경과 연결된 장치를 관리하세요."}
           </p>
         </div>
@@ -196,8 +201,17 @@ export function Monitor({ view, id }: { view: string; id?: string }) {
             <span className={`dot ${online ? "" : "gray"}`} />
             {online ? "네트워크 연결됨" : "인터넷 오프라인"}
           </span>
-          <button aria-label="데이터 새로고침" aria-busy={query.isFetching} disabled={query.isFetching} onClick={() => query.refetch()}>
-            <RefreshCw size={18} aria-hidden="true" className={query.isFetching ? "spin" : undefined} />
+          <button
+            aria-label="데이터 새로고침"
+            aria-busy={query.isFetching}
+            disabled={query.isFetching}
+            onClick={() => query.refetch()}
+          >
+            <RefreshCw
+              size={18}
+              aria-hidden="true"
+              className={query.isFetching ? "spin" : undefined}
+            />
           </button>
         </div>
       </header>
@@ -359,10 +373,16 @@ export function Monitor({ view, id }: { view: string; id?: string }) {
               {!isOnline(device) && (
                 <div className="banner">
                   <WifiOff size={18} />
-                  장치가 오프라인이거나 비활성 상태입니다. 측정값은 마지막
-                  수신값입니다.
+                  {reading
+                    ? "장치가 오프라인이거나 비활성 상태입니다. 마지막으로 수신된 측정값을 표시합니다."
+                    : "아직 수신된 측정값이 없습니다. 장치의 전원과 네트워크 연결을 확인하세요."}
                 </div>
               )}
+              <MultiSensors
+                deviceId={device.id}
+                period={period}
+                isOnline={isOnline(device)}
+              />
               <div className="chart-grid">
                 {(["temperature", "humidity"] as const).map((metric) => (
                   <section className="panel" key={metric}>
